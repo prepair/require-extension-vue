@@ -1,3 +1,5 @@
+// @ts-check
+
 const fse = require('fs-extra');
 const path = require('node:path');
 const log = require('loglevel');
@@ -8,11 +10,23 @@ const findCacheDir = (options = {}) => {
   return _findCacheDir({ name: moduleName, ...options });
 };
 
+/**
+ * @typedef { import('./types').VueMetadata } VueMetadata
+ *
+ * @typedef { Object } CacheMetadata
+ * @property { number | null } mtimeMs
+ * @property { { path: string, mtimeMs: number } | null  } externalTemplate
+ * @property { { path: string, mtimeMs: number } | null } externalScript
+ */
+
 const ENCODING_UTF8 = 'utf8';
 const moduleName = 'require-extension-vue';
 const cacheMetadataFile = 'revue.json';
 const cwd = path.resolve('.');
 
+/**
+ * @type Record<string, CacheMetadata>
+ */
 let _cacheMetadata = {};
 
 /**
@@ -24,9 +38,10 @@ const initialize = () => {
 };
 
 /**
- * @type {() => Object<string, any>}
+ * @type {() => Record<string, CacheMetadata> | null}
  */
 const getCacheMetadata = () => {
+  /** @type { Record<string, CacheMetadata> | null } */
   let cacheMetadata = null;
 
   const cacheMetadataFilePath = getCacheMetadataFilePath();
@@ -60,7 +75,7 @@ const getCacheMetadata = () => {
 // };
 
 /**
- * @type {(filePath: string) => string}
+ * @type { (filePath: string) => string | null }
  */
 const getCachedFile = (filePath) => {
   if (!hasCachedFile(filePath)) {
@@ -75,7 +90,7 @@ const getCachedFile = (filePath) => {
 };
 
 /**
- * @type {(vueMetada: Object<string, any>, content: string) => void}
+ * @type {(vueMetada: VueMetadata, content: string) => void}
  */
 const setCachedFile = (vueMetadata, content) => {
   const cachedFilePath = getCachedFilePath(vueMetadata.filePath);
@@ -92,7 +107,7 @@ const setCachedFile = (vueMetadata, content) => {
 };
 
 /**
- * @type {(vueMetada: Object<string, any>) => void}
+ * @type {(vueMetada: VueMetadata) => void}
  */
 const updateCacheMetadata = (vueMetadata) => {
   const cacheMetadataFilePath = getCacheMetadataFilePath();
@@ -145,7 +160,7 @@ const toCwdRelativeMetadataPath = (filePath) =>
     .replaceAll('\\', '/');
 
 /**
- * @type {(vueMetada: Object<string, any>) => string}
+ * @type {(vueMetada: VueMetadata) => CacheMetadata}
  */
 const getCacheMetadataValue = (vueMetadata) => {
   // note: vueMetadata.filePath always exists for sure that is what triggered the
@@ -159,20 +174,27 @@ const getCacheMetadataValue = (vueMetadata) => {
 
     externalScript: extScriptMtimeMs
       ? {
-          path: toCwdRelativeMetadataPath(vueMetadata.externalScriptPath),
+          path: toCwdRelativeMetadataPath(
+            /** @type string */ (vueMetadata.externalScriptPath)
+          ),
           mtimeMs: extScriptMtimeMs,
         }
       : null,
 
     externalTemplate: extTemplateMtimeMs
       ? {
-          path: toCwdRelativeMetadataPath(vueMetadata.externalTemplatePath),
+          path: toCwdRelativeMetadataPath(
+            /** @type string */ (vueMetadata.externalTemplatePath)
+          ),
           mtimeMs: extTemplateMtimeMs,
         }
       : null,
   };
 };
 
+/**
+ * @type {(filePath: string | null | undefined) => number | null}
+ */
 const mtimeMs = (filePath) => {
   if (!filePath) return null;
   const _path = path.resolve(filePath);
@@ -184,7 +206,9 @@ const mtimeMs = (filePath) => {
  * @type {() => string}
  */
 const getCacheMetadataFilePath = () => {
-  const thunk = findCacheDir({ thunk: true });
+  const thunk = /** @type {(s: string) => string} */ (
+    /** @type { unknown } */ (findCacheDir({ thunk: true }))
+  );
   return thunk(cacheMetadataFile);
 };
 
@@ -192,7 +216,9 @@ const getCacheMetadataFilePath = () => {
  * @type {(filePath: string) => string}
  */
 const getCachedFilePath = (filePath) => {
-  const thunk = findCacheDir({ thunk: true });
+  const thunk = /** @type {(s: string) => string} */ (
+    /** @type { unknown } */ (findCacheDir({ thunk: true }))
+  );
   return thunk(filePath.replace(cwd, ''));
 };
 

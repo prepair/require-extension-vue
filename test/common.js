@@ -13,51 +13,41 @@ const clearRelatedRequireCache = () => {
     });
 };
 
-const expectFunctionalComponent = (value, details = {}) => {
-  expectComponent(value, { ...details, functional: true });
-};
-
-const expectComponent = (value, details = {}) => {
-  value = value || {};
-  const {
-    name,
-    setupContains = '',
-    renderContains = '',
-    _compiled = true,
-    functional = false,
-    staticRenderFns = [],
-  } = details;
+const expectComponent = (component, details = {}) => {
+  component = component || {};
+  const { name, setupContains = '', renderContains = '' } = details;
   // todo
   // console.log('######## component keys/values:', Object.entries(value).map(([key, value]) => `${key}: ${value}`));
-  expect(value.name).to.equal(name, `component.name should be set`);
-  expect(isFunction(value.render)).to.equal(
-    true,
-    `component.render should be a function`
+  const componentName = component.name ?? component.__name;
+  const renderFn = component.render;
+  const checkRenderFn = renderContains !== '';
+  const setupFn = component.setup;
+  const checkSetupFn = setupContains !== '';
+
+  expect(componentName).to.equal(name, `"component.name" should be set`);
+
+  expect(isFunction(renderFn)).to.equal(
+    checkRenderFn,
+    `component.render should${checkRenderFn ? ' ' : ' not '}be a function`
   );
-  expect(String(value.setup)).to.include(
-    setupContains,
-    'component.setup should include text'
-  );
-  expect(String(value.render)).to.include(
+
+  expect(String(renderFn)).to.include(
     renderContains,
     'component.render should include text'
   );
-  expect(value._compiled).to.equal(
-    _compiled,
-    `component._compiled should be set to true`
+
+  expect(isFunction(setupFn)).to.equal(
+    checkSetupFn,
+    `"component.setup" should be a function`
   );
-  expect(value.functional).to.equal(
-    functional,
-    `component.functional should be set`
-  );
-  expect(value.staticRenderFns).to.eql(
-    staticRenderFns,
-    `component.staticRenderFns should be set`
+
+  expect(String(setupFn)).to.include(
+    setupContains,
+    'component.setup should include text'
   );
 };
 
 exports = module.exports = {
   clearRelatedRequireCache,
   expectComponent,
-  expectFunctionalComponent,
 };

@@ -1,5 +1,5 @@
 const fse = require('fs-extra');
-const path = require('path');
+const path = require('node:path');
 const { expect } = require('chai');
 const sinon = require('sinon');
 const { expectComponent } = require('./common');
@@ -13,12 +13,12 @@ describe('permanent cache', () => {
     sinon.stub(fse, 'outputFile');
   });
 
-  it('should store compiled file in cache if caching enabled and not already cached', () => {
+  it('should store compiled file in cache if caching enabled and not already cached (esm)', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache/index.vue'
+      'test/fixtures/permanent-cache-esm/index.vue'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const vueFileStat = { mtimeMs: 1 };
@@ -30,12 +30,12 @@ describe('permanent cache', () => {
     require('..')({
       permanentCache: true,
       babel: {
-        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache'),
+        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache-esm'),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache').default;
+    const component = require('./fixtures/permanent-cache-esm').default;
 
     expect(fse.readFileSync.notCalled).to.equal(true);
 
@@ -44,7 +44,7 @@ describe('permanent cache', () => {
     // save compiled file to cache
     expect(fse.outputFileSync.firstCall.args[0]).to.equal(
       path.resolve(
-        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache/index.vue'
+        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-esm/index.vue'
       )
     );
     expect(fse.outputFileSync.firstCall.args[1]).to.match(/Permanent Cache/);
@@ -55,7 +55,7 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: null,
             externalTemplate: null,
@@ -68,17 +68,17 @@ describe('permanent cache', () => {
     ]);
 
     expectComponent(component, {
-      name: 'PermanentCache',
-      renderContains: 'Permanent Cache',
+      name: 'PermanentCacheEsm',
+      renderContains: 'Permanent Cache (esm)',
     });
   });
 
-  it('should return cached compiled file if caching enabled and original not changed', () => {
+  it('should return cached compiled file if caching enabled and original not changed (esm)', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache/index.vue'
+      'test/fixtures/permanent-cache-esm/index.vue'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const stat = { mtimeMs: 2 };
@@ -88,7 +88,7 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: stat.mtimeMs,
             externalScript: null,
             externalTemplate: null,
@@ -105,34 +105,34 @@ describe('permanent cache', () => {
     fse.readFileSync
       .withArgs(
         path.resolve(
-          'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache/index.vue'
+          'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-esm/index.vue'
         ),
         'utf8'
       )
-      .returns("exports = module.exports = 'Permanent Cache';");
+      .returns("exports = module.exports = 'Permanent Cache (esm)';");
 
     require('..')({
       permanentCache: true,
       babel: {
-        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache'),
+        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache-esm'),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache');
+    const component = require('./fixtures/permanent-cache-esm');
 
     expect(fse.readFileSync.calledTwice).to.equal(true);
     expect(fse.outputFileSync.notCalled).to.equal(true);
 
-    expect(component).to.equal('Permanent Cache');
+    expect(component).to.equal('Permanent Cache (esm)');
   });
 
-  it('should update cached compiled file if caching enabled and original changed', () => {
+  it('should update cached compiled file if caching enabled and original changed (esm)', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache/index.vue'
+      'test/fixtures/permanent-cache-esm/index.vue'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const vueFileStat = { mtimeMs: 3 };
@@ -141,7 +141,7 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: 2,
             externalScript: null,
             externalTemplate: null,
@@ -157,12 +157,12 @@ describe('permanent cache', () => {
     require('..')({
       permanentCache: true,
       babel: {
-        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache'),
+        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache-esm'),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache').default;
+    const component = require('./fixtures/permanent-cache-esm').default;
 
     expect(fse.readFileSync.calledOnce).to.equal(true);
     expect(fse.outputFileSync.calledTwice).to.equal(true);
@@ -170,7 +170,7 @@ describe('permanent cache', () => {
     // save compiled file to cache
     expect(fse.outputFileSync.firstCall.args[0]).to.equal(
       path.resolve(
-        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache/index.vue'
+        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-esm/index.vue'
       )
     );
     expect(fse.outputFileSync.firstCall.args[1]).to.match(/Permanent Cache/);
@@ -181,7 +181,7 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: null,
             externalTemplate: null,
@@ -194,20 +194,20 @@ describe('permanent cache', () => {
     ]);
 
     expectComponent(component, {
-      name: 'PermanentCache',
-      renderContains: 'Permanent Cache',
+      name: 'PermanentCacheEsm',
+      renderContains: 'Permanent Cache (esm)',
     });
   });
 
-  it('should return cached compiled file if caching enabled and original external script not changed ', () => {
+  it('should return cached compiled file if caching enabled and original external script not changed (esm)', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache-external-script/index.vue'
+      'test/fixtures/permanent-cache-external-script-esm/index.vue'
     );
     const vueScriptFileRelative = path.normalize(
-      'test/fixtures/permanent-cache-external-script/script.js'
+      'test/fixtures/permanent-cache-external-script-esm/script.js'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const vueScriptFileAbsolute = path.resolve(vueScriptFileRelative);
@@ -218,11 +218,11 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: {
               mtimeMs: vueScriptFileStat.mtimeMs,
-              path: vueScriptFileRelative.replace(/\\/g, '/'),
+              path: vueScriptFileRelative.replaceAll('\\', '/'),
             },
             externalTemplate: null,
           },
@@ -241,11 +241,13 @@ describe('permanent cache', () => {
     fse.readFileSync
       .withArgs(
         path.resolve(
-          'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-external-script/index.vue'
+          'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-external-script-esm/index.vue'
         ),
         'utf8'
       )
-      .returns("exports = module.exports = 'Permanent Cache External Script';");
+      .returns(
+        "exports = module.exports = 'Permanent Cache External Script (esm)';"
+      );
 
     require('..')({
       permanentCache: true,
@@ -253,29 +255,29 @@ describe('permanent cache', () => {
         cwd: path.resolve(
           __dirname,
           'fixtures',
-          'permanent-cache-external-script'
+          'permanent-cache-external-script-esm'
         ),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache-external-script');
+    const component = require('./fixtures/permanent-cache-external-script-esm');
 
     expect(fse.readFileSync.calledTwice).to.equal(true);
     expect(fse.outputFileSync.notCalled).to.equal(true);
 
-    expect(component).to.equal('Permanent Cache External Script');
+    expect(component).to.equal('Permanent Cache External Script (esm)');
   });
 
-  it('should update cached compiled file if caching enabled and original external script changed', () => {
+  it('should update cached compiled file if caching enabled and original external script changed (esm)', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache-external-script/index.vue'
+      'test/fixtures/permanent-cache-external-script-esm/index.vue'
     );
     const vueScriptFileRelative = path.normalize(
-      'test/fixtures/permanent-cache-external-script/script.js'
+      'test/fixtures/permanent-cache-external-script-esm/script.js'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const vueScriptFileAbsolute = path.resolve(vueScriptFileRelative);
@@ -286,11 +288,11 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: {
               mtimeMs: 3,
-              path: vueScriptFileRelative.replace(/\\/g, '/'),
+              path: vueScriptFileRelative.replaceAll('\\', '/'),
             },
             externalTemplate: null,
           },
@@ -301,7 +303,7 @@ describe('permanent cache', () => {
     );
     fse.readFileSync.withArgs(vueScriptFileAbsolute, 'utf8').returns(`
       export default {
-        name: 'PermanentCacheExternalScript'
+        name: 'PermanentCacheExternalScriptEsm'
       };
     `);
     fse.existsSync.withArgs(vueFileAbsolute).returns(true);
@@ -315,14 +317,14 @@ describe('permanent cache', () => {
         cwd: path.resolve(
           __dirname,
           'fixtures',
-          'permanent-cache-external-script'
+          'permanent-cache-external-script-esm'
         ),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache-external-script')
-      .default;
+    const component =
+      require('./fixtures/permanent-cache-external-script-esm').default;
 
     expect(fse.readFileSync.calledTwice).to.equal(true);
     expect(fse.outputFileSync.calledTwice).to.equal(true);
@@ -330,7 +332,7 @@ describe('permanent cache', () => {
     // save compiled file to cache
     expect(fse.outputFileSync.firstCall.args[0]).to.equal(
       path.resolve(
-        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-external-script/index.vue'
+        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-external-script-esm/index.vue'
       )
     );
     expect(fse.outputFileSync.firstCall.args[1]).to.match(
@@ -343,10 +345,10 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: {
-              path: vueScriptFileRelative.replace(/\\/g, '/'),
+              path: vueScriptFileRelative.replaceAll('\\', '/'),
               mtimeMs: vueScriptFileStat.mtimeMs,
             },
             externalTemplate: null,
@@ -359,20 +361,20 @@ describe('permanent cache', () => {
     ]);
 
     expectComponent(component, {
-      name: 'PermanentCacheExternalScript',
-      renderContains: 'Permanent Cache External Script',
+      name: 'PermanentCacheExternalScriptEsm',
+      renderContains: 'Permanent Cache External Script (esm)',
     });
   });
 
-  it('should update cached compiled file if caching enabled and original external script not exists anymore', () => {
+  it('should update cached compiled file if caching enabled and original external script not exists anymore (esm)', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache/index.vue'
+      'test/fixtures/permanent-cache-esm/index.vue'
     );
     const vueScriptFileRelative = path.normalize(
-      'test/fixtures/permanent-cache/script.js'
+      'test/fixtures/permanent-cache-esm/script.js'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const vueScriptFileAbsolute = path.resolve(vueScriptFileRelative);
@@ -382,11 +384,11 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: {
               mtimeMs: 3,
-              path: vueScriptFileRelative.replace(/\\/g, '/'),
+              path: vueScriptFileRelative.replaceAll('\\', '/'),
             },
             externalTemplate: null,
           },
@@ -402,12 +404,12 @@ describe('permanent cache', () => {
     require('..')({
       permanentCache: true,
       babel: {
-        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache'),
+        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache-esm'),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache').default;
+    const component = require('./fixtures/permanent-cache-esm').default;
 
     expect(fse.readFileSync.calledOnce).to.equal(true);
     expect(fse.outputFileSync.calledTwice).to.equal(true);
@@ -415,7 +417,7 @@ describe('permanent cache', () => {
     // save compiled file to cache
     expect(fse.outputFileSync.firstCall.args[0]).to.equal(
       path.resolve(
-        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache/index.vue'
+        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-esm/index.vue'
       )
     );
     expect(fse.outputFileSync.firstCall.args[1]).to.match(/Permanent Cache/);
@@ -426,7 +428,7 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: null,
             externalTemplate: null,
@@ -439,20 +441,20 @@ describe('permanent cache', () => {
     ]);
 
     expectComponent(component, {
-      name: 'PermanentCache',
-      renderContains: 'Permanent Cache',
+      name: 'PermanentCacheEsm',
+      renderContains: 'Permanent Cache (esm)',
     });
   });
 
-  it('should return cached compiled file if caching enabled and original external template not changed ', () => {
+  it('should return cached compiled file if caching enabled and original external template not changed (esm) ', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache-external-template/index.vue'
+      'test/fixtures/permanent-cache-external-template-esm/index.vue'
     );
     const vueTemplateFileRelative = path.normalize(
-      'test/fixtures/permanent-cache-external-template/script.js'
+      'test/fixtures/permanent-cache-external-template-esm/script.js'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const vueTemplateFileAbsolute = path.resolve(vueTemplateFileRelative);
@@ -463,11 +465,11 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: null,
             externalTemplate: {
-              path: vueTemplateFileRelative.replace(/\\/g, '/'),
+              path: vueTemplateFileRelative.replaceAll('\\', '/'),
               mtimeMs: vueTemplateFileStat.mtimeMs,
             },
           },
@@ -486,12 +488,12 @@ describe('permanent cache', () => {
     fse.readFileSync
       .withArgs(
         path.resolve(
-          'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-external-template/index.vue'
+          'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-external-template-esm/index.vue'
         ),
         'utf8'
       )
       .returns(
-        "exports = module.exports = 'Permanent Cache External Template';"
+        "exports = module.exports = 'Permanent Cache External Template (esm)';"
       );
 
     require('..')({
@@ -500,29 +502,29 @@ describe('permanent cache', () => {
         cwd: path.resolve(
           __dirname,
           'fixtures',
-          'permanent-cache-external-template'
+          'permanent-cache-external-template-esm'
         ),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache-external-template');
+    const component = require('./fixtures/permanent-cache-external-template-esm');
 
     expect(fse.readFileSync.calledTwice).to.equal(true);
     expect(fse.outputFileSync.notCalled).to.equal(true);
 
-    expect(component).to.equal('Permanent Cache External Template');
+    expect(component).to.equal('Permanent Cache External Template (esm)');
   });
 
-  it('should update cached compiled file if caching enabled and original external template changed', () => {
+  it('should update cached compiled file if caching enabled and original external template changed (esm)', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache-external-template/index.vue'
+      'test/fixtures/permanent-cache-external-template-esm/index.vue'
     );
     const vueTemplateFileRelative = path.normalize(
-      'test/fixtures/permanent-cache-external-template/template.html'
+      'test/fixtures/permanent-cache-external-template-esm/template.html'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const vueTemplateFileAbsolute = path.resolve(vueTemplateFileRelative);
@@ -533,11 +535,11 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: null,
             externalTemplate: {
-              path: vueTemplateFileRelative.replace(/\\/g, '/'),
+              path: vueTemplateFileRelative.replaceAll('\\', '/'),
               mtimeMs: 3,
             },
           },
@@ -547,7 +549,7 @@ describe('permanent cache', () => {
       )
     );
     fse.readFileSync.withArgs(vueTemplateFileAbsolute, 'utf8').returns(`
-      <p class="blue">Permanent Cache External Template</p>
+      <p class="blue">Permanent Cache External Template (esm)</p>
     `);
     fse.existsSync.withArgs(vueFileAbsolute).returns(true);
     fse.statSync.withArgs(vueFileAbsolute).returns(vueFileStat);
@@ -560,14 +562,14 @@ describe('permanent cache', () => {
         cwd: path.resolve(
           __dirname,
           'fixtures',
-          'permanent-cache-external-template'
+          'permanent-cache-external-template-esm'
         ),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache-external-template')
-      .default;
+    const component =
+      require('./fixtures/permanent-cache-external-template-esm').default;
 
     expect(fse.readFileSync.calledTwice).to.equal(true);
     expect(fse.outputFileSync.calledTwice).to.equal(true);
@@ -575,7 +577,7 @@ describe('permanent cache', () => {
     // save compiled file to cache
     expect(fse.outputFileSync.firstCall.args[0]).to.equal(
       path.resolve(
-        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-external-template/index.vue'
+        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-external-template-esm/index.vue'
       )
     );
     expect(fse.outputFileSync.firstCall.args[1]).to.match(
@@ -588,11 +590,11 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: null,
             externalTemplate: {
-              path: vueTemplateFileRelative.replace(/\\/g, '/'),
+              path: vueTemplateFileRelative.replaceAll('\\', '/'),
               mtimeMs: vueTemplateFileStat.mtimeMs,
             },
           },
@@ -604,20 +606,20 @@ describe('permanent cache', () => {
     ]);
 
     expectComponent(component, {
-      name: 'PermanentCacheExternalTemplate',
-      renderContains: 'Permanent Cache External Template',
+      name: 'PermanentCacheExternalTemplateEsm',
+      renderContains: 'Permanent Cache External Template (esm)',
     });
   });
 
-  it('should update cached compiled file if caching enabled and original external template not exists anymore', () => {
+  it('should update cached compiled file if caching enabled and original external template not exists anymore (esm)', () => {
     const cacheMetadataFile = path.resolve(
       'node_modules/.cache/require-extension-vue/revue.json'
     );
     const vueFileRelative = path.normalize(
-      'test/fixtures/permanent-cache/index.vue'
+      'test/fixtures/permanent-cache-esm/index.vue'
     );
     const vueTemplateFileRelative = path.normalize(
-      'test/fixtures/permanent-cache/template.html'
+      'test/fixtures/permanent-cache-esm/template.html'
     );
     const vueFileAbsolute = path.resolve(vueFileRelative);
     const vueTemplateFileAbsolute = path.resolve(vueTemplateFileRelative);
@@ -627,11 +629,11 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: null,
             externalTemplate: {
-              path: vueTemplateFileRelative.replace(/\\/g, '/'),
+              path: vueTemplateFileRelative.replaceAll('\\', '/'),
               mtimeMs: 3,
             },
           },
@@ -647,12 +649,12 @@ describe('permanent cache', () => {
     require('..')({
       permanentCache: true,
       babel: {
-        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache'),
+        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache-esm'),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache').default;
+    const component = require('./fixtures/permanent-cache-esm').default;
 
     expect(fse.readFileSync.calledOnce).to.equal(true);
     expect(fse.outputFileSync.calledTwice).to.equal(true);
@@ -660,7 +662,7 @@ describe('permanent cache', () => {
     // save compiled file to cache
     expect(fse.outputFileSync.firstCall.args[0]).to.equal(
       path.resolve(
-        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache/index.vue'
+        'node_modules/.cache/require-extension-vue/test/fixtures/permanent-cache-esm/index.vue'
       )
     );
     expect(fse.outputFileSync.firstCall.args[1]).to.match(/Permanent Cache/);
@@ -671,7 +673,7 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replace(/\\/g, '/')]: {
+          [vueFileRelative.replaceAll('\\', '/')]: {
             mtimeMs: vueFileStat.mtimeMs,
             externalScript: null,
             externalTemplate: null,
@@ -684,21 +686,21 @@ describe('permanent cache', () => {
     ]);
 
     expectComponent(component, {
-      name: 'PermanentCache',
-      renderContains: 'Permanent Cache',
+      name: 'PermanentCacheEsm',
+      renderContains: 'Permanent Cache (esm)',
     });
   });
 
-  it('should not read from cache nor write to it when caching is disabled', () => {
+  it('should not read from cache nor write to it when caching is disabled (esm)', () => {
     require('..')({
       permanentCache: false,
       babel: {
-        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache'),
+        cwd: path.resolve(__dirname, 'fixtures', 'permanent-cache-esm'),
         babelrc: false,
       },
     });
 
-    const component = require('./fixtures/permanent-cache').default;
+    const component = require('./fixtures/permanent-cache-esm').default;
 
     expect(fse.existsSync.notCalled).to.equal(true);
     expect(fse.statSync.notCalled).to.equal(true);
@@ -706,8 +708,8 @@ describe('permanent cache', () => {
     expect(fse.outputFileSync.notCalled).to.equal(true);
 
     expectComponent(component, {
-      name: 'PermanentCache',
-      renderContains: 'Permanent Cache',
+      name: 'PermanentCacheEsm',
+      renderContains: 'Permanent Cache (esm)',
     });
   });
 });

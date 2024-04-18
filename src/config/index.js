@@ -8,7 +8,6 @@ const optionsSchema = require('./options-schema');
  */
 const getDefaultConfig = () => ({
   logLevel: 'warn',
-  emitEsmodule: false,
   permanentCache: false,
   babel: false,
   noLogParserErrors: false,
@@ -41,6 +40,22 @@ const getDefaultBabelOptions = () => ({
       '@babel/preset-env',
       {
         targets: 'current node',
+      },
+    ],
+    [
+      '@babel/preset-typescript',
+      {
+        // note: We need this so scripts in vue files will be processed as TS as well
+        //  (The filename passed to babel has .vue extension which won't trigger
+        //  TS processing because only .ts/.tsx/.mts/.cts extension are set up by
+        //  this preset. We could do this only for .vue files if we register the
+        //  TS plugin manually with test clauses, but using this allExtensions flag
+        //  is ok and safe because it doesn't affect the performance.)
+        allExtensions: true,
+
+        allowDeclareFields: true,
+        onlyRemoveTypeImports: false, // warn: setting this true erases enums at runtime so NOK
+        optimizeConstEnums: true,
       },
     ],
   ],
@@ -128,11 +143,6 @@ const isBabelEnabled = u.compose(
 const isBabelConfigured = u.compose(u.isNotEmptyObject, u.prop('babel'));
 
 /**
- * @type {(config: Object<string, any>) => boolean}
- */
-const emitEsmodule = u.compose(u.equals(true), u.prop('emitEsmodule'));
-
-/**
  * @type {(config: Object<string, any>) => Object<string, any>}
  */
 const getBabelOptions = u.ifElse(
@@ -177,7 +187,6 @@ let _config = getDefaultConfig();
 exports = module.exports = {
   getBabelOptions: () => getBabelOptions(_config),
   getDefaultBabelOptions,
-  emitEsmodule: () => emitEsmodule(_config),
   isBabelConfigured: () => isBabelConfigured(_config),
   isBabelEnabled: () => isBabelEnabled(_config),
   isPermanentCacheEnabled: () => isPermanentCacheEnabled(_config),
