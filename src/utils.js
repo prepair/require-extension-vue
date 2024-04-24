@@ -13,17 +13,17 @@ const isOfType = R.curry(
 );
 
 /**
- * @type {(value: unknown) => boolean}
+ * @type {(value: unknown) => value is RegExp}
  */
 const isRegExp = isOfType('[object RegExp]');
 
 /**
- * @type {(value: unknown) => boolean}
+ * @type {(value: unknown) => value is string}
  */
 const isString = isOfType('[object String]');
 
 /**
- * @type {(value: unknown) => boolean}
+ * @type {(value: unknown) => value is boolean}
  */
 const isBoolean = isOfType('[object Boolean]');
 
@@ -48,7 +48,7 @@ const isNotObject = R.complement(isObject);
 const isNotEmptyObject = R.both(isObject, isNotEmpty);
 
 /**
- * @type {(value: unknown) => boolean}
+ * @type {(value: unknown) => value is Function}
  */
 const _isFunction = isOfType('[object Function]');
 

@@ -1,10 +1,35 @@
+// @ts-check
+
 const u = require('../utils');
 const Ajv = require('ajv');
 const log = require('loglevel');
 const optionsSchema = require('./options-schema');
 
 /**
- * @type {() => Object<string, any>}
+ * @typedef {import('loglevel').LogLevelNames} LogLevelNames
+ *
+ * @typedef {Object} Config
+ * @property {LogLevelNames} logLevel
+ * @property {boolean} permanentCache
+ * @property {boolean | BabelConfig} babel
+ * @property {boolean} noLogParserErrors
+ * @property {boolean} noLogTemplateCompilerErrors
+ * @property {boolean} noLogTemplateCompilerTips
+ * @property {ParserConfig} parser
+ * @property {TemplateCompilerConfig} templateCompiler
+ *
+ * @typedef {Object} BabelConfig
+ *
+ * @typedef {Object} ParserConfig
+ * @property {{ exclude: Array<string | RegExp>}} errors
+ *
+ * @typedef {Object} TemplateCompilerConfig
+ * @property {{ exclude: Array<string | RegExp> }} errors
+ * @property {{ exclude: Array<string | RegExp> }} tips
+ */
+
+/**
+ * @type {() => Config}
  */
 const getDefaultConfig = () => ({
   logLevel: 'warn',
@@ -31,9 +56,6 @@ const getDefaultConfig = () => ({
   },
 });
 
-/**
- * @type {() => Object<string, any>}
- */
 const getDefaultBabelOptions = () => ({
   presets: [
     [
@@ -64,7 +86,7 @@ const getDefaultBabelOptions = () => ({
 });
 
 /**
- * @type {config: Object<string, any>, () => boolean}
+ * @type {(config: Config) => boolean}
  */
 const isParserErrorsOutputEnabled = (config) => {
   return (
@@ -73,7 +95,7 @@ const isParserErrorsOutputEnabled = (config) => {
 };
 
 /**
- * @type {(config: Object<string, any>, ) => boolean}
+ * @type {(config: Config) => boolean}
  */
 const isTemplateCompilerErrorsOutputEnabled = (config) => {
   return (
@@ -83,7 +105,7 @@ const isTemplateCompilerErrorsOutputEnabled = (config) => {
 };
 
 /**
- * @type {(config: Object<string, any>, ) => boolean}
+ * @type {(config: Config) => boolean}
  */
 const isTemplateCompilerTipsOutputEnabled = (config) => {
   return (
@@ -93,21 +115,21 @@ const isTemplateCompilerTipsOutputEnabled = (config) => {
 };
 
 /**
- * @type {(config: Object<string, any>, error: string) => boolean}
+ * @type {(config: Config, error: string) => boolean}
  */
 const parserErrorMessageFilter = (config, error) => {
   return messageFilter(config.parser.errors.exclude, error);
 };
 
 /**
- * @type {(config: Object<string, any>, error: string) => boolean}
+ * @type {(config: Config, error: string) => boolean}
  */
 const templateCompilerErrorMessageFilter = (config, error) => {
   return messageFilter(config.templateCompiler.errors.exclude, error);
 };
 
 /**
- * @type {(config: Object<string, any>, tip: string) => boolean}
+ * @type {(config: Config, tip: string) => boolean}
  */
 const templateCompilerTipMessageFilter = (config, tip) => {
   return messageFilter(config.templateCompiler.tips.exclude, tip);
@@ -125,26 +147,17 @@ const messageFilter = (excludes, message) => {
 };
 
 /**
- * @type {(config: Object<string, any>) => boolean}
+ * @type {(config: Config) => boolean}
  */
 const isPermanentCacheEnabled = u.propEq(true, 'permanentCache');
 
-/**
- * @type {(config: Object<string, any>) => boolean}
- */
 const isBabelEnabled = u.compose(
   u.either(u.equals(true), u.isNotEmptyObject),
   u.prop('babel')
 );
 
-/**
- * @type {(config: Object<string, any>) => boolean}
- */
 const isBabelConfigured = u.compose(u.isNotEmptyObject, u.prop('babel'));
 
-/**
- * @type {(config: Object<string, any>) => Object<string, any>}
- */
 const getBabelOptions = u.ifElse(
   isBabelConfigured,
   u.prop('babel'),
@@ -152,14 +165,17 @@ const getBabelOptions = u.ifElse(
 );
 
 /**
- * @type {(config: Object<string, any>) => void}
+ * @type {(config: Config) => void}
  */
 const initLogging = (config) => {
-  log.setDefaultLevel(process.env.REQ_EXT_VUE_LOG_LEVEL || config.logLevel);
+  log.setDefaultLevel(
+    /** @type {LogLevelNames} */ (process.env.REQ_EXT_VUE_LOG_LEVEL) ||
+      config.logLevel
+  );
 };
 
 /**
- * @type {(options: Object<string, any>, config: Object<string, any>) => Object<string, any>}
+ * @type {(options: Partial<Config>) => Config}
  */
 const initConfig = (options) => {
   if (options) verifyOptions(options);
@@ -167,9 +183,10 @@ const initConfig = (options) => {
 };
 
 /**
- * @type {(options: Object<string, any>) => void}
+ * @type {(options: Partial<Config>) => void}
  */
 const verifyOptions = (options) => {
+  // @ts-expect-error works just fine thank you TS :)
   const ajv = new Ajv();
   const isValid = ajv.validate(optionsSchema, options);
   if (!isValid) {
@@ -190,16 +207,18 @@ exports = module.exports = {
   isBabelConfigured: () => isBabelConfigured(_config),
   isBabelEnabled: () => isBabelEnabled(_config),
   isPermanentCacheEnabled: () => isPermanentCacheEnabled(_config),
-  initConfig: (options) => (_config = initConfig(options)),
+  initConfig: (/** @type {Partial<Config>} */ options) =>
+    (_config = initConfig(options)),
   initLogging: () => initLogging(_config),
   isParserErrorsOutputEnabled: () => isParserErrorsOutputEnabled(_config),
   isTemplateCompilerErrorsOutputEnabled: () =>
     isTemplateCompilerErrorsOutputEnabled(_config),
   isTemplateCompilerTipsOutputEnabled: () =>
     isTemplateCompilerTipsOutputEnabled(_config),
-  parserErrorMessageFilter: (error) => parserErrorMessageFilter(_config, error),
-  templateCompilerErrorMessageFilter: (error) =>
+  parserErrorMessageFilter: (/** @type {string} */ error) =>
+    parserErrorMessageFilter(_config, error),
+  templateCompilerErrorMessageFilter: (/** @type {string} */ error) =>
     templateCompilerErrorMessageFilter(_config, error),
-  templateCompilerTipMessageFilter: (tip) =>
+  templateCompilerTipMessageFilter: (/** @type {string} */ tip) =>
     templateCompilerTipMessageFilter(_config, tip),
 };

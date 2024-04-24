@@ -312,6 +312,9 @@ const combineAndTransformContent = ({
       )}`
     );
   } else {
+    // note: no babel means we can only work with CJS from consumer side. vue compiled
+    //  stuff needs to be manually CJSified as follows
+
     // note: having only script means we have our own export def like `module.exports = ... ` etc
     //  we need to normalize that to match the esm structure
     const hasScriptSetup = Boolean(compiledScript?.setup);
