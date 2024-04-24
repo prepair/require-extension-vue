@@ -38,7 +38,7 @@ const { resolveScript } = require('./resolve-script');
  * @typedef { import('@vue/compiler-core').CompilerOptions } CompilerOptions
  * @typedef { import('@babel/core').BabelFileResult } BabelFileResult
  * @typedef { import('@babel/core').TransformOptions } TransformOptions
- * @typedef { import('./types').VueMetadata } VueMetadata
+ * @typedef { import('./types').SfcMetadata } SfcMetadata
  * @typedef { import('source-map-js').RawSourceMap } RawSourceMap
  * @typedef { import('@jridgewell/trace-mapping').EncodedSourceMap } TraceEncodedSourceMap
  * @typedef { import('@jridgewell/gen-mapping').EncodedSourceMap } GenEncodedSourceMap
@@ -49,7 +49,7 @@ const REGEX_RENDER_FUNCTION = /render\s*:?\s*\(/;
 const ENCODING_UTF8 = 'utf8';
 
 /**
- * @type {(source: string, filename: string) => { code: string, vueMetadata: VueMetadata}}
+ * @type {(source: string, filename: string) => { code: string, sfcMetadata: SfcMetadata}}
  */
 const compile = (source, filename) => {
   log.info(`[require-extension-vue info] start compiling: '${filename}'`);
@@ -132,7 +132,7 @@ const compile = (source, filename) => {
 
   return {
     code: result,
-    vueMetadata: {
+    sfcMetadata: {
       filePath: filename,
       externalScriptPath,
       externalTemplatePath,

@@ -2,9 +2,13 @@ const fse = require('fs-extra');
 const path = require('node:path');
 const { expect } = require('chai');
 const sinon = require('sinon');
+const { version: vuePkgVersion } = require('vue');
 const { expectComponent } = require('./common');
 
 describe('permanent cache', () => {
+  const currentVersion = 2;
+  const currentVueVersion = vuePkgVersion;
+
   beforeEach(() => {
     sinon.stub(fse, 'existsSync');
     sinon.stub(fse, 'statSync');
@@ -55,10 +59,14 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: null,
-            externalTemplate: null,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: null,
+              externalTemplate: null,
+            },
           },
         },
         null,
@@ -88,10 +96,14 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: stat.mtimeMs,
-            externalScript: null,
-            externalTemplate: null,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: stat.mtimeMs,
+              externalScript: null,
+              externalTemplate: null,
+            },
           },
         },
         null,
@@ -141,10 +153,14 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: 2,
-            externalScript: null,
-            externalTemplate: null,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: 2,
+              externalScript: null,
+              externalTemplate: null,
+            },
           },
         },
         null,
@@ -181,10 +197,14 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: null,
-            externalTemplate: null,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: null,
+              externalTemplate: null,
+            },
           },
         },
         null,
@@ -218,13 +238,17 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: {
-              mtimeMs: vueScriptFileStat.mtimeMs,
-              path: vueScriptFileRelative.replaceAll('\\', '/'),
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: {
+                mtimeMs: vueScriptFileStat.mtimeMs,
+                path: vueScriptFileRelative.replaceAll('\\', '/'),
+              },
+              externalTemplate: null,
             },
-            externalTemplate: null,
           },
         },
         null,
@@ -288,13 +312,17 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: {
-              mtimeMs: 3,
-              path: vueScriptFileRelative.replaceAll('\\', '/'),
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: {
+                mtimeMs: 3,
+                path: vueScriptFileRelative.replaceAll('\\', '/'),
+              },
+              externalTemplate: null,
             },
-            externalTemplate: null,
           },
         },
         null,
@@ -345,13 +373,17 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: {
-              path: vueScriptFileRelative.replaceAll('\\', '/'),
-              mtimeMs: vueScriptFileStat.mtimeMs,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: {
+                path: vueScriptFileRelative.replaceAll('\\', '/'),
+                mtimeMs: vueScriptFileStat.mtimeMs,
+              },
+              externalTemplate: null,
             },
-            externalTemplate: null,
           },
         },
         null,
@@ -384,13 +416,17 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: {
-              mtimeMs: 3,
-              path: vueScriptFileRelative.replaceAll('\\', '/'),
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: {
+                mtimeMs: 3,
+                path: vueScriptFileRelative.replaceAll('\\', '/'),
+              },
+              externalTemplate: null,
             },
-            externalTemplate: null,
           },
         },
         null,
@@ -428,10 +464,14 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: null,
-            externalTemplate: null,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: null,
+              externalTemplate: null,
+            },
           },
         },
         null,
@@ -465,12 +505,16 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: null,
-            externalTemplate: {
-              path: vueTemplateFileRelative.replaceAll('\\', '/'),
-              mtimeMs: vueTemplateFileStat.mtimeMs,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: null,
+              externalTemplate: {
+                path: vueTemplateFileRelative.replaceAll('\\', '/'),
+                mtimeMs: vueTemplateFileStat.mtimeMs,
+              },
             },
           },
         },
@@ -535,12 +579,16 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: null,
-            externalTemplate: {
-              path: vueTemplateFileRelative.replaceAll('\\', '/'),
-              mtimeMs: 3,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: null,
+              externalTemplate: {
+                path: vueTemplateFileRelative.replaceAll('\\', '/'),
+                mtimeMs: 3,
+              },
             },
           },
         },
@@ -590,12 +638,16 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: null,
-            externalTemplate: {
-              path: vueTemplateFileRelative.replaceAll('\\', '/'),
-              mtimeMs: vueTemplateFileStat.mtimeMs,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: null,
+              externalTemplate: {
+                path: vueTemplateFileRelative.replaceAll('\\', '/'),
+                mtimeMs: vueTemplateFileStat.mtimeMs,
+              },
             },
           },
         },
@@ -629,12 +681,16 @@ describe('permanent cache', () => {
     fse.readFileSync.withArgs(cacheMetadataFile, 'utf8').returns(
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: null,
-            externalTemplate: {
-              path: vueTemplateFileRelative.replaceAll('\\', '/'),
-              mtimeMs: 3,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: null,
+              externalTemplate: {
+                path: vueTemplateFileRelative.replaceAll('\\', '/'),
+                mtimeMs: 3,
+              },
             },
           },
         },
@@ -673,10 +729,14 @@ describe('permanent cache', () => {
       cacheMetadataFile,
       JSON.stringify(
         {
-          [vueFileRelative.replaceAll('\\', '/')]: {
-            mtimeMs: vueFileStat.mtimeMs,
-            externalScript: null,
-            externalTemplate: null,
+          version: currentVersion,
+          vueVersion: currentVueVersion,
+          entries: {
+            [vueFileRelative.replaceAll('\\', '/')]: {
+              mtimeMs: vueFileStat.mtimeMs,
+              externalScript: null,
+              externalTemplate: null,
+            },
           },
         },
         null,
