@@ -46,6 +46,7 @@ module.exports = {
     'import/no-cycle': 'error',
 
     // n
+    'n/no-unpublished-import': 'off',
     'n/no-unpublished-require': 'off',
 
     // unicorn
@@ -66,5 +67,6 @@ module.exports = {
 
     // typescript
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-require-imports': 'off'
   },
 };

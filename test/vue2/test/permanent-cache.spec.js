@@ -786,6 +786,7 @@ describe('permanent cache', () => {
       },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     require('./fixtures/permanent-cache-parser-error-esm').default;
 
     expect(fse.statSync.notCalled).to.equal(true);
