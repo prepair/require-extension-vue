@@ -26,6 +26,23 @@ describe('source map', () => {
     );
   });
 
+  it('should output proper stack trace backed up by inlined source map when babel is not used (esm)', () => {
+    require('../../..')({ babel: true });
+    const component = require('./fixtures/source-map-esm').default;
+
+    let errorStack = null;
+    try {
+      component.methods.test();
+    } catch (error) {
+      errorStack = error.stack;
+    }
+
+    expect(errorStack).to.include('Error: just tracing');
+    expect(errorStack).to.include(
+      `at Object.test (${path.resolve('test/fixtures/source-map-esm.vue')}`
+    );
+  });
+
   it('should output proper stack trace backed up by inlined source map when babel is not used', function () {
     require('../../..')({ babel: false });
     const component = require('./fixtures/source-map');
@@ -67,9 +84,9 @@ describe('source map', () => {
     );
   });
 
-  it('should output proper stack trace backed up by inlined source map when external script is used', function () {
-    require('../../..')({ babel: false });
-    const component = require('./fixtures/source-map-external');
+  it('should output proper stack trace backed up by inlined source map when external script is used (esm)', () => {
+    require('../../..')({ babel: true });
+    const component = require('./fixtures/source-map-external-esm').default;
 
     let errorStack = null;
     try {
@@ -81,7 +98,28 @@ describe('source map', () => {
     expect(errorStack).to.include('Error: just tracing');
     expect(errorStack).to.include(
       `at Object.test (${path.resolve(
-        'test/fixtures/source-map-external/script.js'
+        'test/fixtures/source-map-external-esm/script.js'
+      )}:8:13)`
+      // note: should be the one below but to achieve this need to create a proper self source map
+      // `at Object.test (${path.resolve('test/fixtures/source-map-external/script.js')}:6:13)`
+    );
+  });
+
+  it('should output proper stack trace backed up by inlined source map when external script is used (cjs)', function () {
+    require('../../..')({ babel: false });
+    const component = require('./fixtures/source-map-external-cjs');
+
+    let errorStack = null;
+    try {
+      component.methods.test();
+    } catch (error) {
+      errorStack = error.stack;
+    }
+
+    expect(errorStack).to.include('Error: just tracing');
+    expect(errorStack).to.include(
+      `at Object.test (${path.resolve(
+        'test/fixtures/source-map-external-cjs/script.js'
       )}:6:1)`
       // note: should be the one below but to achieve this need to create a proper self source map
       // `at Object.test (${path.resolve('test/fixtures/source-map-external/script.js')}:6:13)`
