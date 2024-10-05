@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/prepair/require-extension-vue/compare/v5.0.0...v5.1.0) (2024-10-05)
+
+
+### Features
+
+* **vue2:** added typescript support ([77affbe](https://github.com/prepair/require-extension-vue/commit/77affbe5ff318c4788c8eaf7d137d09480bc9b4f))
+
+
+### Bug Fixes
+
+* don't cache compilations with parser or compilation errors ([325d4f4](https://github.com/prepair/require-extension-vue/commit/325d4f4635e95b15836a749be33a33750e1bef5c))
+* **vue2:** fix broken tests ([5fad186](https://github.com/prepair/require-extension-vue/commit/5fad1867e69b909018bba1be14d821bcc9483a8c))
+* **vue2:** fix more tests where loader was not registered ([c518dee](https://github.com/prepair/require-extension-vue/commit/c518dee4730949abd774ccf67229ef3c4bbba7ed))
+
 ### [5.0.1](https://github.com/prepair/require-extension-vue/compare/v5.0.0...v5.0.1) (2024-08-15)
 
 
