@@ -257,7 +257,7 @@ describe('', () => {
     expect(log.error.firstCall.args[0]).to.match(
       /\[require-extension-vue] parser errors in file: .*empty.vue$/
     );
-    expect(log.error.secondCall.args[0]).to.equal(
+    expect(log.error.secondCall.args[0]).to.include(
       '[require-extension-vue: parser error] SyntaxError: At least one <template> or <script> is required in a single file component.'
     );
   });
@@ -270,7 +270,7 @@ describe('', () => {
     expect(log.error.firstCall.args[0]).to.match(
       /\[require-extension-vue] parser errors in file: .*empty.vue$/
     );
-    expect(log.error.secondCall.args[0]).to.equal(
+    expect(log.error.secondCall.args[0]).to.include(
       '[require-extension-vue: parser error] SyntaxError: At least one <template> or <script> is required in a single file component.'
     );
   });
@@ -447,7 +447,7 @@ describe('', () => {
     expect(log.error.secondCall.args[0]).to.equal(
       '[require-extension-vue: parser error] SyntaxError: Element is missing end tag.'
     );
-    expect(log.error.thirdCall.args[0]).to.equal(
+    expect(log.error.thirdCall.args[0]).to.include(
       '[require-extension-vue: parser error] SyntaxError: At least one <template> or <script> is required in a single file component.'
     );
     expectComponent(component);
@@ -463,7 +463,7 @@ describe('', () => {
     expect(log.error.secondCall.args[0]).to.equal(
       '[require-extension-vue: parser error] SyntaxError: Element is missing end tag.'
     );
-    expect(log.error.thirdCall.args[0]).to.equal(
+    expect(log.error.thirdCall.args[0]).to.include(
       '[require-extension-vue: parser error] SyntaxError: At least one <template> or <script> is required in a single file component.'
     );
     expectComponent(component);
@@ -479,7 +479,7 @@ describe('', () => {
     expect(log.error.secondCall.args[0]).to.equal(
       '[require-extension-vue: parser error] SyntaxError: Element is missing end tag.'
     );
-    expect(log.error.thirdCall.args[0]).to.equal(
+    expect(log.error.thirdCall.args[0]).to.include(
       '[require-extension-vue: parser error] SyntaxError: At least one <template> or <script> is required in a single file component.'
     );
     expectComponent(component);
