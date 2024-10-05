@@ -10,7 +10,7 @@ export default defineComponent({
 </script>
 
 <style>
-.class = {
+.class {
   color: #00f;
 }
 </style>

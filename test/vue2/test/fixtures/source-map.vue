@@ -15,7 +15,7 @@ exports = module.exports = {
 </script>
 
 <style>
-.class = {
+.class {
   color: #00f;
 }
 </style>

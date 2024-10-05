@@ -47,7 +47,7 @@ exports = module.exports = defineComponent({
 </script>
 
 <style>
-.class = {
+.class {
   color: #00f;
 }
 </style>
